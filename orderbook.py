@@ -15,6 +15,7 @@ class OrderBook():
         self.volume_map = {}
         self.queue_map = {}
 
+    
     def cancel_order(self, order: Order) -> None:
         """
         Removes order (and potentially queue) from associated heap
