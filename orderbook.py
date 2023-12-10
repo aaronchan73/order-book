@@ -1,5 +1,6 @@
 from order import Action, Order
 from collections import deque
+from heapq import heappush
 
 class OrderBook():
     """
@@ -36,7 +37,7 @@ class OrderBook():
             self.order_map.pop(order.order_id)
 
 
-    def add_order_to_book(self, order: Order) -> None:
+    def add_order_to_book(self, order: Order, book: list) -> None:
         """
         Updates book's orders and volumes, initializing if does not exist
         """
@@ -44,6 +45,7 @@ class OrderBook():
         if not (order.price, order.action) in self.queue_map:
             self.queue_map[(order.price, order.action)] = deque([order])
             self.volume_map = [(order.price, order.action)] = order.volume
+            heappush(book, (order.price, self.queue_map[(order.price, order.action)]))
         else:
             self.queue_map[(order.price, order.action)].append(order)
             self.volume_map[(order.price, order.action)] += order.volume
@@ -57,9 +59,9 @@ class OrderBook():
         same_book = self.best_bid if order.action == Action.BUY else self.best_ask
         self.order_map[order.order_id] = order
 
-        while order.volume > 0 and opposite_book and opposite_book[0][0].price <= order.price:
+        while order.volume > 0 and opposite_book and opposite_book[0][1][0].price <= order.price:
             # get price and volume based on matched order
-            matched_order = opposite_book[0][0]
+            matched_order = opposite_book[0][1][0]
             trade_price = matched_order.price
             trade_volume = min(order.volume, matched_order.volume)
 
@@ -76,7 +78,7 @@ class OrderBook():
                 self.cancel_order(matched_order)
 
         if order.volume > 0:
-            self.add_order_to_book(order)
+            self.add_order_to_book(order, same_book)
 
 
     def get_volume_at_price(self, price: int, action: Action):
