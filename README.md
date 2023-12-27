@@ -1,2 +1,3 @@
 # Order Book
-Buy and sell orders
+- Simple implementation of a limit order book
+- Mainly to practice writing good Python code
